@@ -1,0 +1,247 @@
+.journal-list {
+  display: grid;
+  gap: 20px;
+}
+
+.journal-card {
+  background: white;
+  padding: 28px;
+  border-radius: 15px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  border-left: 5px solid #667eea;
+}
+
+.journal-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.journal-header {
+  margin-bottom: 22px;
+  padding-bottom: 18px;
+  border-bottom: 3px solid #f5f5f5;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.journal-header h3 {
+  margin: 0 0 12px 0;
+  color: #333;
+  font-size: 21px;
+  font-weight: 700;
+}
+
+.mood-badge {
+  display: inline-block;
+  padding: 7px 16px;
+  background: linear-gradient(135deg, #fff3cd 0%, #ffe8a1 100%);
+  color: #856404;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 700;
+  border: 2px solid #ffd966;
+  box-shadow: 0 2px 8px rgba(255, 193, 7, 0.2);
+}
+
+.journal-content {
+  margin-bottom: 22px;
+}
+
+.journal-section {
+  margin-bottom: 22px;
+  padding: 16px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e8ecf5 100%);
+  border-radius: 10px;
+  border-left: 4px solid;
+  transition: all 0.3s ease;
+}
+
+.journal-section:hover {
+  transform: translateX(5px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.journal-section:last-child {
+  margin-bottom: 0;
+}
+
+.journal-section:nth-child(1) {
+  border-left-color: #27ae60;
+}
+
+.journal-section:nth-child(2) {
+  border-left-color: #667eea;
+}
+
+.journal-section:nth-child(3) {
+  border-left-color: #f39c12;
+}
+
+.journal-section:nth-child(4) {
+  border-left-color: #764ba2;
+}
+
+.journal-section h4 {
+  margin: 0 0 10px 0;
+  color: #555;
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.journal-section p {
+  margin: 0;
+  color: #666;
+  line-height: 1.7;
+  font-size: 14px;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.journal-actions {
+  display: flex;
+  gap: 10px;
+  padding-top: 18px;
+  border-top: 2px solid #f5f5f5;
+}
+
+.journal-actions .btn-secondary,
+.journal-actions .btn-danger {
+  flex: 1;
+  padding: 11px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 80px 20px;
+  color: #999;
+  font-size: 16px;
+}
+
+/* Tablet */
+@media (max-width: 1024px) {
+  .journal-card {
+    padding: 24px;
+  }
+
+  .journal-header h3 {
+    font-size: 19px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .journal-list {
+    gap: 15px;
+  }
+
+  .journal-card {
+    padding: 20px;
+    border-radius: 12px;
+  }
+
+  .journal-header {
+    margin-bottom: 18px;
+    padding-bottom: 15px;
+  }
+
+  .journal-header h3 {
+    font-size: 18px;
+    margin-bottom: 10px;
+  }
+
+  .mood-badge {
+    padding: 6px 14px;
+    font-size: 12px;
+  }
+
+  .journal-content {
+    margin-bottom: 18px;
+  }
+
+  .journal-section {
+    margin-bottom: 18px;
+    padding: 14px;
+  }
+
+  .journal-section h4 {
+    font-size: 12px;
+    margin-bottom: 8px;
+  }
+
+  .journal-section p {
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  .journal-actions {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .journal-actions .btn-secondary,
+  .journal-actions .btn-danger {
+    width: 100%;
+  }
+
+  .empty-state {
+    padding: 60px 15px;
+    font-size: 14px;
+  }
+}
+
+/* Small Mobile */
+@media (max-width: 480px) {
+  .journal-card {
+    padding: 16px;
+  }
+
+  .journal-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .journal-header h3 {
+    font-size: 16px;
+  }
+
+  .mood-badge {
+    padding: 5px 12px;
+    font-size: 11px;
+  }
+
+  .journal-section {
+    padding: 12px;
+    margin-bottom: 15px;
+  }
+
+  .journal-section h4 {
+    font-size: 11px;
+  }
+
+  .journal-section p {
+    font-size: 12px;
+  }
+
+  .journal-actions .btn-secondary,
+  .journal-actions .btn-danger {
+    padding: 10px;
+    font-size: 13px;
+  }
+
+  .empty-state {
+    padding: 50px 10px;
+  }
+}

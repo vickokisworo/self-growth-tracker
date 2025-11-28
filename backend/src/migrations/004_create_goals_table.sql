@@ -1,0 +1,20 @@
+CREATE TABLE IF NOT EXISTS goals (
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+  title VARCHAR(200) NOT NULL,
+  description TEXT,
+  why_important TEXT,
+  deadline DATE,
+  status VARCHAR(20) DEFAULT 'in_progress',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS goal_steps (
+  id SERIAL PRIMARY KEY,
+  goal_id INTEGER REFERENCES goals(id) ON DELETE CASCADE,
+  step_title VARCHAR(200) NOT NULL,
+  completed BOOLEAN DEFAULT false,
+  order_number INTEGER,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

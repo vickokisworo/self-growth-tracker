@@ -1,0 +1,21 @@
+CREATE TABLE IF NOT EXISTS habits (
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+  name VARCHAR(100) NOT NULL,
+  description TEXT,
+  frequency VARCHAR(20) DEFAULT 'daily',
+  reminder_time TIME,
+  is_active BOOLEAN DEFAULT true,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS habit_logs (
+  id SERIAL PRIMARY KEY,
+  habit_id INTEGER REFERENCES habits(id) ON DELETE CASCADE,
+  completed BOOLEAN DEFAULT false,
+  date DATE DEFAULT CURRENT_DATE,
+  notes TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE(habit_id, date)
+);

@@ -1,0 +1,242 @@
+.habit-list {
+  display: grid;
+  gap: 20px;
+}
+
+.habit-card {
+  background: white;
+  padding: 24px;
+  border-radius: 15px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  border-left: 5px solid #667eea;
+}
+
+.habit-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.habit-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+  gap: 20px;
+}
+
+.habit-info {
+  flex: 1;
+}
+
+.habit-info h3 {
+  margin: 0 0 10px 0;
+  color: #333;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.habit-description {
+  margin: 0 0 12px 0;
+  color: #666;
+  line-height: 1.6;
+  font-size: 14px;
+}
+
+.habit-meta {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.frequency-badge {
+  display: inline-block;
+  padding: 5px 14px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: capitalize;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.reminder-time {
+  color: #888;
+  font-size: 13px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.habit-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 18px;
+  border-top: 2px solid #f5f5f5;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.checkbox-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  user-select: none;
+  padding: 8px 12px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.checkbox-container:hover {
+  background: #f8f9fa;
+}
+
+.checkbox-container input[type="checkbox"] {
+  width: 22px;
+  height: 22px;
+  cursor: pointer;
+  accent-color: #667eea;
+}
+
+.checkbox-container span {
+  font-weight: 600;
+  color: #555;
+  font-size: 14px;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.action-buttons .btn-secondary,
+.action-buttons .btn-danger {
+  padding: 9px 18px;
+  font-size: 14px;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 80px 20px;
+  color: #999;
+  font-size: 16px;
+}
+
+/* Tablet */
+@media (max-width: 1024px) {
+  .habit-card {
+    padding: 20px;
+  }
+
+  .habit-info h3 {
+    font-size: 18px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .habit-list {
+    gap: 15px;
+  }
+
+  .habit-card {
+    padding: 18px;
+    border-radius: 12px;
+  }
+
+  .habit-header {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .habit-info h3 {
+    font-size: 17px;
+  }
+
+  .habit-description {
+    font-size: 13px;
+  }
+
+  .habit-actions {
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+  }
+
+  .checkbox-container {
+    width: 100%;
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 8px;
+  }
+
+  .action-buttons {
+    width: 100%;
+  }
+
+  .action-buttons .btn-secondary,
+  .action-buttons .btn-danger {
+    flex: 1;
+  }
+
+  .empty-state {
+    padding: 60px 15px;
+    font-size: 14px;
+  }
+}
+
+/* Small Mobile */
+@media (max-width: 480px) {
+  .habit-card {
+    padding: 15px;
+  }
+
+  .habit-info h3 {
+    font-size: 16px;
+  }
+
+  .habit-description {
+    font-size: 12px;
+  }
+
+  .frequency-badge {
+    font-size: 11px;
+    padding: 4px 12px;
+  }
+
+  .reminder-time {
+    font-size: 12px;
+  }
+
+  .checkbox-container {
+    padding: 8px;
+  }
+
+  .checkbox-container input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+  }
+
+  .checkbox-container span {
+    font-size: 13px;
+  }
+
+  .action-buttons .btn-secondary,
+  .action-buttons .btn-danger {
+    padding: 10px;
+    font-size: 13px;
+  }
+
+  .empty-state {
+    padding: 50px 10px;
+  }
+}
