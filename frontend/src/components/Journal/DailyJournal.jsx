@@ -1,4 +1,4 @@
-// frontend/src/components/Journal/DailyJournal.jsx - WITH DATE SEARCH
+// frontend/src/components/Journal/DailyJournal.jsx - FIXED DATE SEARCH
 import React, { useState, useEffect } from "react";
 import { journalService } from "../../services/journalService";
 import JournalList from "./JournalList";
@@ -34,16 +34,28 @@ const DailyJournal = () => {
     }
   };
 
+  const normalizeDate = (dateString) => {
+    // Convert to YYYY-MM-DD format for comparison
+    const date = new Date(dateString);
+    // Add timezone offset to get correct local date
+    const offset = date.getTimezoneOffset();
+    const localDate = new Date(date.getTime() - offset * 60 * 1000);
+    return localDate.toISOString().split("T")[0];
+  };
+
   const filterJournals = () => {
     if (!searchDate) {
       setFilteredJournals(journals);
       return;
     }
 
+    const searchDateNormalized = normalizeDate(searchDate);
+
     const filtered = journals.filter((journal) => {
-      const journalDate = new Date(journal.date).toISOString().split("T")[0];
-      return journalDate === searchDate;
+      const journalDateNormalized = normalizeDate(journal.date);
+      return journalDateNormalized === searchDateNormalized;
     });
+
     setFilteredJournals(filtered);
   };
 
@@ -83,6 +95,17 @@ const DailyJournal = () => {
     setSearchDate("");
   };
 
+  const formatSearchDate = (dateStr) => {
+    if (!dateStr) return "";
+    const date = new Date(dateStr);
+    return date.toLocaleDateString("en-US", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  };
+
   if (loading) return <Loading />;
 
   return (
@@ -92,20 +115,18 @@ const DailyJournal = () => {
           <h1>Daily Journal</h1>
           <p className="subtitle">
             {searchDate
-              ? `Showing entries for ${new Date(
-                  searchDate
-                ).toLocaleDateString()}`
+              ? `Showing entries for ${formatSearchDate(searchDate)}`
               : `${journals.length} total entries`}
           </p>
         </div>
         <button onClick={handleAdd} className="btn-primary">
-          New Entry
+          + New Entry
         </button>
       </div>
 
       <div className="journal-search">
         <div className="search-group">
-          <label htmlFor="search-date">Search by Date:</label>
+          <label htmlFor="search-date">🔍 Search by Date:</label>
           <input
             id="search-date"
             type="date"
@@ -115,18 +136,18 @@ const DailyJournal = () => {
           />
           {searchDate && (
             <button onClick={clearSearch} className="clear-search-btn">
-              Clear
+              ✕ Clear
             </button>
           )}
         </div>
-        <div className="search-results">
-          {searchDate && (
+        {searchDate && (
+          <div className="search-results">
             <span className="results-count">
-              {filteredJournals.length}{" "}
-              {filteredJournals.length === 1 ? "entry" : "entries"} found
+              Found {filteredJournals.length}{" "}
+              {filteredJournals.length === 1 ? "entry" : "entries"}
             </span>
-          )}
-        </div>
+          </div>
+        )}
       </div>
 
       {showForm && (
@@ -137,19 +158,20 @@ const DailyJournal = () => {
         />
       )}
 
-      <JournalList
-        journals={filteredJournals}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
-      />
-
-      {filteredJournals.length === 0 && searchDate && (
+      {filteredJournals.length === 0 && searchDate ? (
         <div className="no-results">
-          <p>No journal entries found for this date.</p>
+          <div className="empty-icon">📝</div>
+          <p>No journal entries found for {formatSearchDate(searchDate)}</p>
           <button onClick={clearSearch} className="btn-secondary">
             Show All Entries
           </button>
         </div>
+      ) : (
+        <JournalList
+          journals={filteredJournals}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+        />
       )}
     </div>
   );

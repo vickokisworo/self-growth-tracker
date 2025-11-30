@@ -1,3 +1,5 @@
+/* frontend/src/components/Goals/GoalProgress.css - UPDATED */
+
 .goal-progress {
   margin: 20px 0;
 }
@@ -35,6 +37,10 @@
   background: white;
   border-radius: 8px;
   transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
 }
 
 .step-item:hover {
@@ -52,6 +58,8 @@
   gap: 12px;
   cursor: pointer;
   user-select: none;
+  flex: 1;
+  min-width: 0;
 }
 
 .checkbox-label input[type="checkbox"] {
@@ -60,6 +68,12 @@
   cursor: pointer;
   accent-color: #667eea;
   flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.checkbox-label input[type="checkbox"]:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
 }
 
 .checkbox-label span {
@@ -67,12 +81,53 @@
   font-size: 14px;
   line-height: 1.5;
   font-weight: 500;
+  word-wrap: break-word;
+  transition: all 0.2s ease;
 }
 
 .checkbox-label span.completed {
   text-decoration: line-through;
   color: #999;
   font-weight: 400;
+}
+
+.checkbox-label input[type="checkbox"]:checked + span {
+  color: #10b981;
+}
+
+/* Delete Step Button */
+.delete-step-btn {
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: #fee;
+  color: #e74c3c;
+  border-radius: 6px;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.6;
+}
+
+.delete-step-btn:hover {
+  opacity: 1;
+  background: #e74c3c;
+  color: white;
+  transform: scale(1.1);
+}
+
+.delete-step-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.3;
+}
+
+.step-item:hover .delete-step-btn {
+  opacity: 0.8;
 }
 
 .add-step-form {
@@ -185,6 +240,12 @@
     font-size: 13px;
   }
 
+  .delete-step-btn {
+    width: 26px;
+    height: 26px;
+    font-size: 18px;
+  }
+
   .add-step-form {
     padding: 12px;
   }
@@ -231,6 +292,12 @@
 
   .checkbox-label span {
     font-size: 12px;
+  }
+
+  .delete-step-btn {
+    width: 24px;
+    height: 24px;
+    font-size: 16px;
   }
 
   .add-step-form {
