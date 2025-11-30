@@ -1,4 +1,4 @@
-// frontend/src/components/Dashboard/Dashboard.jsx - ENHANCED
+// frontend/src/components/Dashboard/Dashboard.jsx - ENHANCED VERSION
 import React, { useState, useEffect } from "react";
 import { dashboardService } from "../../services/dashboardService";
 import { todoService } from "../../services/todoService";
@@ -60,7 +60,7 @@ const Dashboard = () => {
   return (
     <div className="dashboard">
       <div className="welcome-banner">
-        <h1>Welcome Back!</h1>
+        <h1>Welcome Back! 👋</h1>
         <p>{getMotivationalMessage()}</p>
       </div>
 
@@ -68,39 +68,43 @@ const Dashboard = () => {
         <StatsCard
           title="Today's Tasks"
           value={todoStats?.today || 0}
-          subtitle={`${todoStats?.pending || 0} pending`}
-          color="var(--primary)"
+          subtitle={`${todoStats?.pending || 0} pending tasks`}
+          color="#0066ff"
+          icon="📋"
           link="/todos"
         />
         <StatsCard
           title="Active Habits"
-          value={stats?.habits?.total_habits || 0}
-          subtitle={`${
-            stats?.habits?.completed_this_week || 0
-          } completed this week`}
-          color="var(--secondary)"
+          value={stats?.habits?.active_habits || 0}
+          subtitle={`${Math.round(
+            stats?.habits?.completion_rate || 0
+          )}% completion rate`}
+          color="#00c9a7"
+          icon="✅"
           link="/habits"
         />
         <StatsCard
-          title="Goals in Progress"
-          value={stats?.goals?.in_progress_goals || 0}
-          subtitle={`${stats?.goals?.completed_goals || 0} completed`}
-          color="var(--success)"
+          title="Goals Progress"
+          value={`${Math.round(stats?.goals?.avg_progress || 0)}%`}
+          subtitle={`${stats?.goals?.in_progress_goals || 0} goals in progress`}
+          color="#10b981"
+          icon="🎯"
           link="/goals"
         />
         <StatsCard
           title="Journal Entries"
-          value={stats?.journals?.total_entries || 0}
-          subtitle="Last 30 days"
-          color="var(--warning)"
+          value={stats?.journals?.entries_this_week || 0}
+          subtitle="entries this week"
+          color="#f59e0b"
+          icon="📝"
           link="/journal"
         />
       </div>
 
-      {stats?.trend && stats.trend.length > 0 && (
+      {stats?.progress?.trend && stats.progress.trend.length > 0 && (
         <div className="chart-section">
           <h2>Progress Trend (Last 14 Days)</h2>
-          <ProgressChart data={stats.trend} />
+          <ProgressChart data={stats.progress.trend} />
         </div>
       )}
 
@@ -108,9 +112,9 @@ const Dashboard = () => {
         {/* Today's Focus */}
         <div className="dashboard-card">
           <div className="card-header">
-            <h3>Today's Focus</h3>
+            <h3>📅 Today's Focus</h3>
             <Link to="/todos" className="view-all-link">
-              View All
+              View All →
             </Link>
           </div>
           <div className="progress-ring">
@@ -120,7 +124,7 @@ const Dashboard = () => {
                 cy="60"
                 r="54"
                 fill="none"
-                stroke="var(--gray-200)"
+                stroke="#e5e7eb"
                 strokeWidth="8"
               />
               <circle
@@ -128,11 +132,14 @@ const Dashboard = () => {
                 cy="60"
                 r="54"
                 fill="none"
-                stroke="var(--primary)"
+                stroke="#0066ff"
                 strokeWidth="8"
                 strokeDasharray={`${todoProgress * 3.39} 339`}
                 strokeLinecap="round"
                 transform="rotate(-90 60 60)"
+                style={{
+                  transition: "stroke-dasharray 0.6s ease",
+                }}
               />
               <text
                 x="60"
@@ -141,21 +148,21 @@ const Dashboard = () => {
                 dy="0.3em"
                 fontSize="24"
                 fontWeight="700"
-                fill="var(--text-primary)"
+                fill="#111827"
               >
                 {Math.round(todoProgress)}%
               </text>
             </svg>
           </div>
-          <p className="focus-text">Tasks Completion</p>
+          <p className="focus-text">Tasks Completion Rate</p>
         </div>
 
         {/* Recent Goals */}
         <div className="dashboard-card">
           <div className="card-header">
-            <h3>Active Goals</h3>
+            <h3>🎯 Active Goals</h3>
             <Link to="/goals" className="view-all-link">
-              View All
+              View All →
             </Link>
           </div>
           <div className="goals-list">
@@ -181,22 +188,29 @@ const Dashboard = () => {
                 </div>
               ))
             ) : (
-              <p className="empty-text">No active goals yet.</p>
+              <p className="empty-text">
+                No active goals yet. Create your first goal!
+              </p>
             )}
           </div>
         </div>
 
         {/* Quick Stats */}
         <div className="dashboard-card">
-          <h3>This Week</h3>
+          <div className="card-header">
+            <h3>📊 This Week's Summary</h3>
+          </div>
           <div className="quick-stats">
             <div className="quick-stat">
-              <span className="stat-icon">📝</span>
+              <span className="stat-icon">✅</span>
               <div>
                 <div className="quick-stat-value">
-                  {stats?.habits?.completed_this_week || 0}
+                  {stats?.habits?.completion_rate
+                    ? Math.round(stats.habits.completion_rate)
+                    : 0}
+                  %
                 </div>
-                <div className="quick-stat-label">Habits Completed</div>
+                <div className="quick-stat-label">Habit Completion</div>
               </div>
             </div>
             <div className="quick-stat">
@@ -205,7 +219,7 @@ const Dashboard = () => {
                 <div className="quick-stat-value">
                   {todoStats?.completed || 0}
                 </div>
-                <div className="quick-stat-label">Tasks Done</div>
+                <div className="quick-stat-label">Tasks Completed</div>
               </div>
             </div>
             <div className="quick-stat">
@@ -221,10 +235,10 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {stats?.progress && stats.progress.length > 0 && (
+      {stats?.progress?.categories && stats.progress.categories.length > 0 && (
         <div className="progress-overview">
           <h2>Progress by Category</h2>
-          {stats.progress.map((item) => (
+          {stats.progress.categories.map((item) => (
             <div key={item.category} className="progress-item">
               <span className="category-name">{item.category}</span>
               <div className="progress-bar-container">
