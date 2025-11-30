@@ -1,4 +1,4 @@
-// frontend/src/components/Habits/HabitTracker.jsx - FIXED
+// frontend/src/components/Habits/HabitTracker.jsx - COMPLETE FIX
 import React, { useState, useEffect } from "react";
 import { habitService } from "../../services/habitService";
 import HabitList from "./HabitList";
@@ -11,6 +11,7 @@ const HabitTracker = () => {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingHabit, setEditingHabit] = useState(null);
+  const [filter, setFilter] = useState("all"); // all, daily, weekly, monthly
 
   useEffect(() => {
     fetchHabits();
@@ -55,9 +56,11 @@ const HabitTracker = () => {
         completed,
         date: today,
       });
-      // Don't need to refresh all habits, just the streak
+      // Refresh habits to update streaks
+      fetchHabits();
     } catch (error) {
       console.error("Error logging habit:", error);
+      throw error; // Re-throw untuk error handling di HabitList
     }
   };
 
@@ -72,14 +75,55 @@ const HabitTracker = () => {
     setEditingHabit(null);
   };
 
+  const getFilteredHabits = () => {
+    if (filter === "all") return habits;
+    return habits.filter((h) => h.frequency === filter);
+  };
+
+  const filteredHabits = getFilteredHabits();
+  const dailyCount = habits.filter((h) => h.frequency === "daily").length;
+  const weeklyCount = habits.filter((h) => h.frequency === "weekly").length;
+  const monthlyCount = habits.filter((h) => h.frequency === "monthly").length;
+
   if (loading) return <Loading />;
 
   return (
     <div className="habit-tracker">
       <div className="page-header">
-        <h1>Habit Tracker</h1>
+        <div className="header-content">
+          <h1>Habit Tracker</h1>
+          <p className="subtitle">Build better habits, one day at a time</p>
+        </div>
         <button onClick={handleAdd} className="btn-primary">
-          Add Habit
+          + Add Habit
+        </button>
+      </div>
+
+      {/* Frequency Filters */}
+      <div className="habit-filters">
+        <button
+          className={`filter-btn ${filter === "all" ? "active" : ""}`}
+          onClick={() => setFilter("all")}
+        >
+          All Habits ({habits.length})
+        </button>
+        <button
+          className={`filter-btn ${filter === "daily" ? "active" : ""}`}
+          onClick={() => setFilter("daily")}
+        >
+          📅 Daily ({dailyCount})
+        </button>
+        <button
+          className={`filter-btn ${filter === "weekly" ? "active" : ""}`}
+          onClick={() => setFilter("weekly")}
+        >
+          📆 Weekly ({weeklyCount})
+        </button>
+        <button
+          className={`filter-btn ${filter === "monthly" ? "active" : ""}`}
+          onClick={() => setFilter("monthly")}
+        >
+          🗓️ Monthly ({monthlyCount})
         </button>
       </div>
 
@@ -92,7 +136,7 @@ const HabitTracker = () => {
       )}
 
       <HabitList
-        habits={habits}
+        habits={filteredHabits}
         onEdit={handleEdit}
         onDelete={handleDelete}
         onToggle={handleToggle}
