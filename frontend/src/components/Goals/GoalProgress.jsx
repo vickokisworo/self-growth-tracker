@@ -1,13 +1,17 @@
-// frontend/src/components/Goals/GoalProgress.jsx - AUTO UPDATE PROGRESS
+// frontend/src/components/Goals/GoalProgress.jsx - REAL-TIME STEP COMPLETION
 import React, { useState, useEffect } from "react";
 import { goalService } from "../../services/goalService";
-import { calculateProgress } from "../../utils/helpers";
 import "./GoalProgress.css";
 
 const GoalProgress = ({ goalId, totalSteps, completedSteps, onRefresh }) => {
   const [steps, setSteps] = useState([]);
   const [newStep, setNewStep] = useState("");
   const [showAddStep, setShowAddStep] = useState(false);
+  const [updatingStep, setUpdatingStep] = useState(null);
+  const [localProgress, setLocalProgress] = useState({
+    total: totalSteps,
+    completed: completedSteps,
+  });
 
   useEffect(() => {
     if (goalId) {
@@ -15,13 +19,26 @@ const GoalProgress = ({ goalId, totalSteps, completedSteps, onRefresh }) => {
     }
   }, [goalId]);
 
+  useEffect(() => {
+    // Update local progress when props change
+    setLocalProgress({
+      total: totalSteps,
+      completed: completedSteps,
+    });
+  }, [totalSteps, completedSteps]);
+
   const fetchSteps = async () => {
     try {
       const data = await goalService.getById(goalId);
-      setSteps(data.steps || []);
+      setSteps(data.goal.steps || []);
     } catch (error) {
       console.error("Error fetching steps:", error);
     }
+  };
+
+  const calculateProgress = () => {
+    if (localProgress.total === 0) return 0;
+    return Math.round((localProgress.completed / localProgress.total) * 100);
   };
 
   const handleAddStep = async () => {
@@ -32,40 +49,70 @@ const GoalProgress = ({ goalId, totalSteps, completedSteps, onRefresh }) => {
         step_title: newStep,
         order_number: steps.length + 1,
       });
+
+      // Update local progress immediately (total increases, percentage decreases)
+      setLocalProgress((prev) => ({
+        total: prev.total + 1,
+        completed: prev.completed,
+      }));
+
       setNewStep("");
       setShowAddStep(false);
-      fetchSteps();
-      onRefresh();
+
+      // Fetch updated steps
+      await fetchSteps();
+
+      // Refresh parent to get accurate data from server
+      if (onRefresh) {
+        await onRefresh();
+      }
     } catch (error) {
       console.error("Error adding step:", error);
+      alert("Failed to add step. Please try again.");
     }
   };
 
-  const handleToggleStep = async (stepId, completed) => {
-    try {
-      await goalService.updateStep(stepId, completed);
+  const handleToggleStep = async (stepId, currentStatus) => {
+    const newStatus = !currentStatus;
 
-      // Optimistic update
+    // Set loading state
+    setUpdatingStep(stepId);
+
+    try {
+      // Update local state immediately for instant UI feedback
       setSteps((prevSteps) =>
         prevSteps.map((step) =>
-          step.id === stepId ? { ...step, completed } : step
+          step.id === stepId ? { ...step, completed: newStatus } : step
         )
       );
 
-      // Refresh goal data to update progress
-      onRefresh();
+      // Update local progress count
+      setLocalProgress((prev) => ({
+        total: prev.total,
+        completed: newStatus ? prev.completed + 1 : prev.completed - 1,
+      }));
+
+      // Update on server
+      await goalService.updateStep(stepId, newStatus);
+
+      // Refresh parent to sync with server
+      if (onRefresh) {
+        await onRefresh();
+      }
 
       // Check if all steps completed
       const updatedSteps = steps.map((step) =>
-        step.id === stepId ? { ...step, completed } : step
+        step.id === stepId ? { ...step, completed: newStatus } : step
       );
+
       const allCompleted = updatedSteps.every((step) => step.completed);
 
-      if (allCompleted && updatedSteps.length > 0) {
-        // Auto-complete goal
+      if (allCompleted && updatedSteps.length > 0 && newStatus) {
         setTimeout(() => {
           if (
-            window.confirm("All steps completed! Mark this goal as completed?")
+            window.confirm(
+              "🎉 Congratulations! All steps completed!\n\nMark this goal as completed?"
+            )
           ) {
             updateGoalStatus("completed");
           }
@@ -73,25 +120,75 @@ const GoalProgress = ({ goalId, totalSteps, completedSteps, onRefresh }) => {
       }
     } catch (error) {
       console.error("Error updating step:", error);
+
+      // Revert on error
+      setSteps((prevSteps) =>
+        prevSteps.map((step) =>
+          step.id === stepId ? { ...step, completed: currentStatus } : step
+        )
+      );
+
+      setLocalProgress((prev) => ({
+        total: prev.total,
+        completed: currentStatus ? prev.completed + 1 : prev.completed - 1,
+      }));
+
+      alert("Failed to update step. Please try again.");
+    } finally {
+      setUpdatingStep(null);
     }
   };
 
   const updateGoalStatus = async (status) => {
     try {
       await goalService.update(goalId, { status });
-      onRefresh();
+      if (onRefresh) onRefresh();
     } catch (error) {
       console.error("Error updating goal status:", error);
+      alert("Failed to update goal status.");
     }
   };
 
-  const progress = calculateProgress(completedSteps, totalSteps);
+  const handleDeleteStep = async (stepId) => {
+    if (!window.confirm("Delete this step?")) return;
+
+    try {
+      // Check if step was completed
+      const deletedStep = steps.find((s) => s.id === stepId);
+      const wasCompleted = deletedStep?.completed || false;
+
+      // Update local progress immediately
+      setLocalProgress((prev) => ({
+        total: prev.total - 1,
+        completed: wasCompleted ? prev.completed - 1 : prev.completed,
+      }));
+
+      // Delete from server
+      await goalService.deleteStep(stepId);
+
+      // Update local steps list
+      setSteps((prevSteps) => prevSteps.filter((step) => step.id !== stepId));
+
+      // Refresh parent
+      if (onRefresh) {
+        await onRefresh();
+      }
+    } catch (error) {
+      console.error("Error deleting step:", error);
+      alert("Failed to delete step. Please try again.");
+
+      // Refresh to get accurate state
+      if (onRefresh) onRefresh();
+    }
+  };
+
+  const progress = calculateProgress();
 
   return (
     <div className="goal-progress">
       <div className="progress-header">
         <span>
-          Progress: {completedSteps} / {totalSteps} steps
+          Progress: {localProgress.completed} / {localProgress.total} steps
         </span>
         <span className="progress-percentage">{progress}%</span>
       </div>
@@ -107,12 +204,21 @@ const GoalProgress = ({ goalId, totalSteps, completedSteps, onRefresh }) => {
                 <input
                   type="checkbox"
                   checked={step.completed}
-                  onChange={(e) => handleToggleStep(step.id, e.target.checked)}
+                  onChange={() => handleToggleStep(step.id, step.completed)}
+                  disabled={updatingStep === step.id}
                 />
                 <span className={step.completed ? "completed" : ""}>
-                  {step.step_title}
+                  {updatingStep === step.id ? "Updating..." : step.step_title}
                 </span>
               </label>
+              <button
+                onClick={() => handleDeleteStep(step.id)}
+                className="delete-step-btn"
+                title="Delete step"
+                disabled={updatingStep === step.id}
+              >
+                ×
+              </button>
             </div>
           ))}
         </div>

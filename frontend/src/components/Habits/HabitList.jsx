@@ -1,6 +1,7 @@
-// frontend/src/components/Habits/HabitList.jsx - FIXED TOGGLE
+// frontend/src/components/Habits/HabitList.jsx - DEBUG & FINAL FIX
 import React, { useState, useEffect } from "react";
 import HabitStreak from "./HabitStreak";
+import api from "../../services/api";
 import "./HabitList.css";
 
 const HabitList = ({ habits, onEdit, onDelete, onToggle }) => {
@@ -9,33 +10,43 @@ const HabitList = ({ habits, onEdit, onDelete, onToggle }) => {
   const [loading, setLoading] = useState({});
 
   useEffect(() => {
-    checkTodayLogs();
+    if (habits.length > 0) {
+      checkTodayLogs();
+    }
   }, [habits]);
 
   const checkTodayLogs = async () => {
     const logs = {};
+    const today = new Date().toISOString().split("T")[0];
+
+    console.log("🔍 Checking today logs for date:", today);
+
     for (const habit of habits) {
       try {
-        const today = new Date().toISOString().split("T")[0];
-        const response = await fetch(
-          `${process.env.REACT_APP_API_URL}/habits/${habit.id}/logs?startDate=${today}&endDate=${today}`,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          }
-        );
-        const data = await response.json();
-        if (data.success && data.data.logs.length > 0) {
-          logs[habit.id] = data.data.logs[0].completed;
+        const response = await api.get(`/habits/${habit.id}/logs`, {
+          params: {
+            startDate: today,
+            endDate: today,
+          },
+        });
+
+        console.log(`📋 Habit ${habit.id} logs:`, response.data);
+
+        if (response.data.success && response.data.data.logs.length > 0) {
+          const log = response.data.data.logs[0];
+          logs[habit.id] = log.completed;
+          console.log(`✅ Habit ${habit.id} status:`, log.completed);
         } else {
           logs[habit.id] = false;
+          console.log(`❌ Habit ${habit.id} has no log for today`);
         }
       } catch (error) {
-        console.error("Error checking today log:", error);
+        console.error(`❌ Error checking log for habit ${habit.id}:`, error);
         logs[habit.id] = false;
       }
     }
+
+    console.log("📊 Final today logs:", logs);
     setTodayLogs(logs);
   };
 
@@ -43,53 +54,59 @@ const HabitList = ({ habits, onEdit, onDelete, onToggle }) => {
     const currentStatus = todayLogs[habitId] || false;
     const newStatus = !currentStatus;
 
-    // Set loading state
+    console.log("🔄 Toggle habit:", {
+      habitId,
+      currentStatus,
+      newStatus,
+    });
+
+    // Set loading
     setLoading((prev) => ({ ...prev, [habitId]: true }));
 
     try {
       // Optimistic update
-      setTodayLogs((prev) => ({
-        ...prev,
-        [habitId]: newStatus,
-      }));
+      setTodayLogs((prev) => {
+        const updated = { ...prev, [habitId]: newStatus };
+        console.log("🎨 Optimistic UI update:", updated);
+        return updated;
+      });
 
-      // Call parent toggle
+      // Call parent function (which calls API)
+      console.log("📡 Calling API through parent...");
       await onToggle(habitId, newStatus);
 
-      // Refresh streak after toggle
+      console.log("✅ API call successful");
+
+      // Wait a bit then refresh to verify
+      setTimeout(async () => {
+        console.log("🔄 Re-checking logs to verify...");
+        await checkTodayLogs();
+      }, 500);
+
+      // Refresh streak
       setTimeout(() => {
         setStreaks((prev) => ({ ...prev, [habitId]: Date.now() }));
-      }, 500);
+      }, 300);
     } catch (error) {
-      console.error("Error toggling habit:", error);
+      console.error("❌ Toggle error:", error);
+
       // Revert on error
-      setTodayLogs((prev) => ({
-        ...prev,
-        [habitId]: currentStatus,
-      }));
+      setTodayLogs((prev) => {
+        const reverted = { ...prev, [habitId]: currentStatus };
+        console.log("↩️ Reverting to:", reverted);
+        return reverted;
+      });
+
+      alert("Failed to update habit. Please try again.");
     } finally {
       setLoading((prev) => ({ ...prev, [habitId]: false }));
     }
   };
 
-  // Group habits by frequency
-  const groupedHabits = habits.reduce((acc, habit) => {
-    const freq = habit.frequency || "daily";
-    if (!acc[freq]) acc[freq] = [];
-    acc[freq].push(habit);
-    return acc;
-  }, {});
-
-  const frequencyOrder = ["daily", "weekly", "monthly"];
-  const frequencyLabels = {
-    daily: "📅 Daily Habits",
-    weekly: "📆 Weekly Habits",
-    monthly: "🗓️ Monthly Habits",
-  };
-
   if (habits.length === 0) {
     return (
       <div className="empty-state">
+        <div className="empty-icon">✅</div>
         <p>No habits yet. Create your first habit to get started!</p>
       </div>
     );
@@ -97,76 +114,95 @@ const HabitList = ({ habits, onEdit, onDelete, onToggle }) => {
 
   return (
     <div className="habit-list">
-      {frequencyOrder.map((frequency) => {
-        const frequencyHabits = groupedHabits[frequency];
-        if (!frequencyHabits || frequencyHabits.length === 0) return null;
+      {habits.map((habit, index) => {
+        const isChecked = todayLogs[habit.id] || false;
+        const isLoading = loading[habit.id] || false;
 
         return (
-          <div key={frequency} className="habit-frequency-group">
-            <h2 className="frequency-header">{frequencyLabels[frequency]}</h2>
-            <div className="habit-cards">
-              {frequencyHabits.map((habit) => (
-                <div key={habit.id} className="habit-card">
-                  <div className="habit-header">
-                    <div className="habit-info">
-                      <h3>{habit.name}</h3>
-                      {habit.description && (
-                        <p className="habit-description">{habit.description}</p>
-                      )}
-                      <div className="habit-meta">
-                        <span className="frequency-badge">
-                          {habit.frequency}
-                        </span>
-                        {habit.reminder_time && (
-                          <span className="reminder-time">
-                            ⏰ {habit.reminder_time}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                    {habit.frequency === "daily" && (
-                      <HabitStreak
-                        habitId={habit.id}
-                        key={streaks[habit.id] || habit.id}
-                      />
-                    )}
-                  </div>
-
-                  <div className="habit-actions">
-                    <label className="checkbox-container">
-                      <input
-                        type="checkbox"
-                        checked={todayLogs[habit.id] || false}
-                        onChange={() => handleToggle(habit.id)}
-                        disabled={loading[habit.id]}
-                      />
-                      <span className="checkmark"></span>
-                      <span>
-                        {loading[habit.id]
-                          ? "Updating..."
-                          : todayLogs[habit.id]
-                          ? "Completed Today ✓"
-                          : "Complete Today"}
-                      </span>
-                    </label>
-                    <div className="action-buttons">
-                      <button
-                        onClick={() => onEdit(habit)}
-                        className="btn-secondary"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => onDelete(habit.id)}
-                        className="btn-danger"
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </div>
+          <div
+            key={habit.id}
+            className="habit-card"
+            style={{
+              animationDelay: `${index * 0.1}s`,
+              animation: "slideIn 0.5s ease-out forwards",
+              opacity: 0,
+            }}
+          >
+            <div className="habit-header">
+              <div className="habit-info">
+                <h3>{habit.name}</h3>
+                {habit.description && (
+                  <p className="habit-description">{habit.description}</p>
+                )}
+                <div className="habit-meta">
+                  <span className="frequency-badge">{habit.frequency}</span>
+                  {habit.reminder_time && (
+                    <span className="reminder-time">
+                      ⏰ {habit.reminder_time}
+                    </span>
+                  )}
                 </div>
-              ))}
+              </div>
+              {habit.frequency === "daily" && (
+                <HabitStreak
+                  habitId={habit.id}
+                  key={streaks[habit.id] || habit.id}
+                />
+              )}
             </div>
+
+            <div className="habit-actions">
+              <label className="checkbox-container">
+                <input
+                  type="checkbox"
+                  checked={isChecked}
+                  onChange={() => handleToggle(habit.id)}
+                  disabled={isLoading}
+                />
+                <span className="checkmark"></span>
+                <span className={isChecked ? "completed-text" : ""}>
+                  {isLoading
+                    ? "Updating..."
+                    : isChecked
+                    ? "Completed Today ✓"
+                    : "Complete Today"}
+                </span>
+              </label>
+              <div className="action-buttons">
+                <button
+                  onClick={() => onEdit(habit)}
+                  className="btn-secondary"
+                  disabled={isLoading}
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={() => onDelete(habit.id)}
+                  className="btn-danger"
+                  disabled={isLoading}
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+
+            {/* Debug info (remove in production) */}
+            {process.env.NODE_ENV === "development" && (
+              <div
+                style={{
+                  fontSize: "11px",
+                  color: "#999",
+                  marginTop: "10px",
+                  padding: "8px",
+                  background: "#f5f5f5",
+                  borderRadius: "5px",
+                }}
+              >
+                Debug: Habit {habit.id} | Status:{" "}
+                {isChecked ? "Checked ✓" : "Unchecked ○"} | Loading:{" "}
+                {isLoading ? "Yes" : "No"}
+              </div>
+            )}
           </div>
         );
       })}

@@ -1,4 +1,4 @@
-// frontend/src/components/Habits/HabitTracker.jsx - COMPLETE FIX
+// frontend/src/components/Habits/HabitTracker.jsx - WITH DEBUG
 import React, { useState, useEffect } from "react";
 import { habitService } from "../../services/habitService";
 import HabitList from "./HabitList";
@@ -11,7 +11,7 @@ const HabitTracker = () => {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingHabit, setEditingHabit] = useState(null);
-  const [filter, setFilter] = useState("all"); // all, daily, weekly, monthly
+  const [filter, setFilter] = useState("all");
 
   useEffect(() => {
     fetchHabits();
@@ -20,6 +20,7 @@ const HabitTracker = () => {
   const fetchHabits = async () => {
     try {
       const data = await habitService.getAll();
+      console.log("📥 Fetched habits:", data);
       setHabits(data.habits);
     } catch (error) {
       console.error("Error fetching habits:", error);
@@ -50,17 +51,40 @@ const HabitTracker = () => {
   };
 
   const handleToggle = async (habitId, completed) => {
+    console.log("🎯 HabitTracker.handleToggle called:", {
+      habitId,
+      completed,
+      timestamp: new Date().toISOString(),
+    });
+
     try {
       const today = new Date().toISOString().split("T")[0];
-      await habitService.logHabit(habitId, {
+
+      console.log("📅 Logging habit for date:", today);
+
+      const logData = {
         completed,
         date: today,
-      });
-      // Refresh habits to update streaks
-      fetchHabits();
+        notes: "",
+      };
+
+      console.log("📤 Sending to API:", logData);
+
+      const result = await habitService.logHabit(habitId, logData);
+
+      console.log("✅ API Response:", result);
+
+      // Don't refresh all habits, just let the child component verify
+      // This avoids race conditions
+      console.log("✓ Toggle completed successfully");
     } catch (error) {
-      console.error("Error logging habit:", error);
-      throw error; // Re-throw untuk error handling di HabitList
+      console.error("❌ Error in handleToggle:", error);
+      console.error("Error details:", {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status,
+      });
+      throw error; // Re-throw to let child handle it
     }
   };
 
@@ -99,7 +123,6 @@ const HabitTracker = () => {
         </button>
       </div>
 
-      {/* Frequency Filters */}
       <div className="habit-filters">
         <button
           className={`filter-btn ${filter === "all" ? "active" : ""}`}
@@ -141,6 +164,34 @@ const HabitTracker = () => {
         onDelete={handleDelete}
         onToggle={handleToggle}
       />
+
+      {/* Debug Panel (Development Only) */}
+      {process.env.NODE_ENV === "development" && (
+        <div
+          style={{
+            position: "fixed",
+            bottom: "100px",
+            right: "20px",
+            background: "rgba(0,0,0,0.8)",
+            color: "white",
+            padding: "10px",
+            borderRadius: "8px",
+            fontSize: "12px",
+            maxWidth: "300px",
+            zIndex: 9999,
+          }}
+        >
+          <div style={{ fontWeight: "bold", marginBottom: "5px" }}>
+            🐛 Debug Info
+          </div>
+          <div>Total Habits: {habits.length}</div>
+          <div>Filtered: {filteredHabits.length}</div>
+          <div>Filter: {filter}</div>
+          <div style={{ fontSize: "10px", marginTop: "5px", color: "#888" }}>
+            Check browser console for detailed logs
+          </div>
+        </div>
+      )}
     </div>
   );
 };

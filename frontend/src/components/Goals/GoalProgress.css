@@ -1,4 +1,4 @@
-/* frontend/src/components/Goals/GoalProgress.css - UPDATED */
+/* frontend/src/components/Goals/GoalProgress.css - ENHANCED */
 
 .goal-progress {
   margin: 20px 0;
@@ -8,7 +8,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
   font-size: 14px;
   color: #666;
   font-weight: 600;
@@ -16,11 +16,73 @@
 
 .progress-percentage {
   font-weight: 800;
-  font-size: 16px;
+  font-size: 18px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  transition: all 0.3s ease;
+  min-width: 45px;
+  text-align: right;
+}
+
+.progress-percentage.increasing {
+  animation: pulse 0.5s ease;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+}
+
+.progress-bar-container {
+  flex: 1;
+  height: 28px;
+  background: linear-gradient(135deg, #f0f0f0 0%, #e0e0e0 100%);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  border-radius: 14px;
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.progress-bar-fill::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.4),
+    transparent
+  );
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
 }
 
 .steps-list {
@@ -76,13 +138,17 @@
   opacity: 0.5;
 }
 
+.checkbox-label input[type="checkbox"]:checked {
+  accent-color: #10b981;
+}
+
 .checkbox-label span {
   color: #333;
   font-size: 14px;
   line-height: 1.5;
   font-weight: 500;
   word-wrap: break-word;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
 }
 
 .checkbox-label span.completed {
@@ -91,8 +157,23 @@
   font-weight: 400;
 }
 
-.checkbox-label input[type="checkbox"]:checked + span {
+.checkbox-label input[type="checkbox"]:checked ~ span {
   color: #10b981;
+}
+
+/* Completion Animation */
+.checkbox-label input[type="checkbox"]:checked {
+  animation: checkBounce 0.4s ease;
+}
+
+@keyframes checkBounce {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.3);
+  }
 }
 
 /* Delete Step Button */
@@ -118,7 +199,7 @@
   opacity: 1;
   background: #e74c3c;
   color: white;
-  transform: scale(1.1);
+  transform: scale(1.1) rotate(90deg);
 }
 
 .delete-step-btn:disabled {
@@ -135,6 +216,18 @@
   padding: 14px;
   background: #f8f9fa;
   border-radius: 10px;
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .add-step-form input {
@@ -216,6 +309,27 @@
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
 }
 
+.btn-add-step:active {
+  transform: translateY(0);
+}
+
+/* Success Animation when step completed */
+@keyframes successPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(16, 185, 129, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+  }
+}
+
+.step-item.just-completed {
+  animation: successPulse 0.6s ease;
+}
+
 /* Mobile */
 @media (max-width: 768px) {
   .progress-header {
@@ -223,7 +337,12 @@
   }
 
   .progress-percentage {
-    font-size: 15px;
+    font-size: 16px;
+    min-width: 40px;
+  }
+
+  .progress-bar-container {
+    height: 24px;
   }
 
   .steps-list {
@@ -270,7 +389,12 @@
   }
 
   .progress-percentage {
-    font-size: 14px;
+    font-size: 15px;
+    min-width: 38px;
+  }
+
+  .progress-bar-container {
+    height: 20px;
   }
 
   .steps-list {
