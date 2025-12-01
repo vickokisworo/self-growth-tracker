@@ -143,7 +143,7 @@ const TodoList = () => {
           <p className="subtitle">Stay focused on today's priorities</p>
         </div>
         <button onClick={handleAdd} className="btn-primary">
-          Add Task
+          + Add Task
         </button>
       </div>
 
