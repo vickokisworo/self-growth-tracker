@@ -1,6 +1,4 @@
-/* ==========================================
-   index.css - Modern Minimalist Theme
-   ========================================== */
+/* frontend/src/index.css - ENHANCED WITH DARK MODE */
 
 * {
   margin: 0;
@@ -9,20 +7,18 @@
 }
 
 :root {
-  /* Modern Color Palette - Blue & Teal */
+  /* Light Theme Colors */
   --primary: #0066ff;
   --primary-dark: #0052cc;
   --primary-light: #4d94ff;
   --secondary: #00c9a7;
   --secondary-dark: #00a88a;
 
-  /* Status Colors */
   --success: #10b981;
   --danger: #ef4444;
   --warning: #f59e0b;
   --info: #3b82f6;
 
-  /* Neutrals - Clean & Minimal */
   --white: #ffffff;
   --gray-50: #f9fafb;
   --gray-100: #f3f4f6;
@@ -35,35 +31,60 @@
   --gray-800: #1f2937;
   --gray-900: #111827;
 
-  /* Text Colors */
   --text-primary: #111827;
   --text-secondary: #6b7280;
   --text-tertiary: #9ca3af;
 
-  /* Borders */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f9fafb;
+  --bg-tertiary: #f3f4f6;
+
   --border-light: #e5e7eb;
   --border-medium: #d1d5db;
+  --border-color: #e5e7eb;
 
-  /* Shadows - Subtle */
+  --card-bg: #ffffff;
+
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
   --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
 
-  /* Border Radius - Modern */
   --radius-sm: 6px;
   --radius-md: 8px;
   --radius-lg: 12px;
   --radius-xl: 16px;
   --radius-2xl: 24px;
+}
 
-  /* Spacing */
-  --space-xs: 4px;
-  --space-sm: 8px;
-  --space-md: 16px;
-  --space-lg: 24px;
-  --space-xl: 32px;
-  --space-2xl: 48px;
+/* Dark Theme */
+[data-theme="dark"] {
+  --primary: #4d94ff;
+  --primary-dark: #0066ff;
+  --primary-light: #80b3ff;
+
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-tertiary: #64748b;
+
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --bg-tertiary: #334155;
+
+  --border-light: #334155;
+  --border-medium: #475569;
+  --border-color: #334155;
+
+  --card-bg: #1e293b;
+
+  --gray-50: #1e293b;
+  --gray-100: #334155;
+  --gray-200: #475569;
+
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.6);
 }
 
 body {
@@ -71,11 +92,30 @@ body {
     "Oxygen", "Ubuntu", "Cantarell", "Helvetica Neue", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: var(--gray-50);
+  background: var(--bg-secondary);
   color: var(--text-primary);
   min-height: 100vh;
   line-height: 1.6;
   font-size: 15px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Smooth Theme Transition */
+*,
+*::before,
+*::after {
+  transition-property: background-color, border-color, color, fill, stroke;
+  transition-duration: 0.3s;
+  transition-timing-function: ease;
+}
+
+/* Override transition for animations */
+.animated-gradient,
+.progress-circle,
+.confetti-piece,
+.fab-button,
+.toggle-thumb {
+  transition: all 0.3s ease !important;
 }
 
 code {
@@ -84,24 +124,109 @@ code {
 
 /* Modern Scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--gray-100);
+  background: var(--bg-secondary);
 }
 
 ::-webkit-scrollbar-thumb {
   background: var(--gray-300);
-  border-radius: 4px;
+  border-radius: 5px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--gray-400);
 }
 
-/* Clean Animations */
+[data-theme="dark"] ::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb {
+  background: var(--gray-600);
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+  background: var(--gray-500);
+}
+
+/* Selection */
+::selection {
+  background: var(--primary-light);
+  color: white;
+}
+
+/* Focus States */
+*:focus {
+  outline: none;
+}
+
+*:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* Smooth Scroll */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Enhanced Button Styles */
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* Link Styles */
+a {
+  color: var(--primary);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+a:hover {
+  color: var(--primary-dark);
+}
+
+/* Input & Form Elements */
+input,
+select,
+textarea {
+  color: var(--text-primary);
+  background: var(--bg-primary);
+  border-color: var(--border-light);
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(77, 148, 255, 0.1);
+}
+
+/* Card Styles */
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  border-color: var(--border-medium);
+  box-shadow: var(--shadow-md);
+}
+
+/* Global Animations */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -135,6 +260,26 @@ code {
   }
 }
 
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Utility Classes */
 .fade-in {
   animation: fadeIn 0.3s ease-out;
 }
@@ -147,30 +292,74 @@ code {
   animation: slideUp 0.3s ease-out;
 }
 
-/* Selection */
-::selection {
-  background: var(--primary-light);
-  color: white;
+.pulse {
+  animation: pulse 2s ease-in-out infinite;
 }
 
-/* Focus States */
-*:focus {
-  outline: none;
+.spin {
+  animation: spin 1s linear infinite;
 }
 
-*:focus-visible {
-  outline: 2px solid var(--primary);
-  outline-offset: 2px;
+/* Skeleton Loading */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--gray-200) 25%,
+    var(--gray-100) 50%,
+    var(--gray-200) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s ease-in-out infinite;
 }
 
-/* Smooth Scroll */
-html {
-  scroll-behavior: smooth;
+@keyframes skeleton-loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Mobile Safe Areas */
+@supports (padding: env(safe-area-inset-bottom)) {
+  body {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+/* Reduce Motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 /* Print Styles */
 @media print {
   body {
     background: white;
+    color: black;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  :root {
+    --border-light: #000000;
+    --border-medium: #000000;
+  }
+
+  [data-theme="dark"] {
+    --border-light: #ffffff;
+    --border-medium: #ffffff;
   }
 }

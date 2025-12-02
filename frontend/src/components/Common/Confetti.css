@@ -1,0 +1,49 @@
+/* frontend/src/components/Common/Confetti.css */
+
+.confetti-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+  overflow: hidden;
+}
+
+.confetti-piece {
+  position: absolute;
+  top: -20px;
+  animation: confetti-fall linear forwards, confetti-spin linear infinite;
+  opacity: 0.9;
+  border-radius: 2px;
+}
+
+@keyframes confetti-fall {
+  0% {
+    top: -20px;
+    opacity: 1;
+  }
+  100% {
+    top: 100vh;
+    opacity: 0;
+  }
+}
+
+@keyframes confetti-spin {
+  0% {
+    transform: rotateZ(0deg) rotateY(0deg);
+  }
+  25% {
+    transform: rotateZ(90deg) rotateY(90deg);
+  }
+  50% {
+    transform: rotateZ(180deg) rotateY(180deg);
+  }
+  75% {
+    transform: rotateZ(270deg) rotateY(270deg);
+  }
+  100% {
+    transform: rotateZ(360deg) rotateY(360deg);
+  }
+}
